@@ -1,21 +1,14 @@
 package at.kaindorf.tictacdead.ws.pojos;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@AllArgsConstructor
+@Data
 public class Message {
 
-    private String placement;
+    private String xyz;
 
-    public Message() {
-    }
+    private Integer player;
 
-    public Message(String placement) {
-        this.placement = placement;
-    }
-
-    public String getPlacement() {
-        return placement;
-    }
-
-    public void setPlacement(String name) {
-        this.placement = name;
-    }
 }

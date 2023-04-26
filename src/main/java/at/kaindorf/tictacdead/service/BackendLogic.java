@@ -98,7 +98,7 @@ public class BackendLogic {
 
 
         // Initialize board with printout
-        fillBoardWithBlankPositions();
+        fillBoardWithBlankPositions();  /*ToDo: add to Constructor*/
         printBoard();
 
         // Goes through as many times as the game has fields

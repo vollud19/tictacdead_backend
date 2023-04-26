@@ -2,94 +2,6 @@ var stompClient = null;
 
 var player;
 
-function setConnected(connected) {
-    $("#disconnect").prop("disabled", !connected);
-    if (player == 1){
-        $("#connect1").prop("disabled", false);}
-    else {
-        $("#connect2").prop("disabled", false);
-    }
-    if (connected) {
-        $("#conversation").show();
-    }
-    else {
-        $("#conversation").hide();
-    }
-    $("#greetings").html("");
-}
-
-function connectPlayer(playernum) {/*
-    if (playernum == 1){
-        stompClient.send("/app/connectedPlayers", {}, JSON.stringify({'player1': false, 'player2':true }));}
-    else {
-        stompClient.send("/app/connectedPlayers", {}, JSON.stringify({'player1': true, 'player2':false }));}
-    disconnect();*/
-
-    var socket = new SockJS('/player1');
-    player = playernum;
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/player/'+player, function (greeting) {
-            console.log(greeting.body);
-            showGreeting(JSON.parse(greeting.body));
-        });
-    });
-}
-
-function connectToLobbySocket(){/*
-    var socket = new SockJS('/connections');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/players', function (connectedPlayers) {
-            console.log(connectedPlayers.body);
-            parsedPlayers = JSON.parse(connectedPlayers.body)
-            // $("#connect1").prop("disabled", !parsedPlayers.player1);
-            // $("#connect2").prop("disabled", !parsedPlayers.player2);
-        });
-    });*/
-}
-/*
-    ToDo: LobbyWebSocket that triggers GET / POST request for Connected Players
-
-    During Lobby the page is connected to LobbyWebSocket and received messages will trigger
-    the GET / POST request to update the buttons
-
- */
-
-function disconnect() {
-
-    if (stompClient !== null) {
-        stompClient.disconnect();
-    }
-    setConnected(false);
-    console.log("Disconnected");
-}
-
-function sendPlayerDisconnect(){
-    if (player == 1){
-        stompClient.send("/app/connectedPlayers", {}, JSON.stringify({'player1' : false, 'player2' : null }));}
-    else {
-        stompClient.send("/app/connectedPlayers", {}, JSON.stringify({'player1' : null, 'player2': false }));
-    }
-    player = 0;
-}
-
-function sendName() {
-        stompClient.send("/app/"+player, {}, JSON.stringify({'placement': $("#name").val()}));
-}
-
-function sendPublicName() {
-        stompClient.send("/app/1", {}, JSON.stringify({'placement': $("#name").val()}));
-        stompClient.send("/app/2", {}, JSON.stringify({'placement': $("#name").val()}));
-}
-
-function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message.x + message.y + message.z + "</td></tr>");
-}
 
 $(function () {
     $("form").on('submit', function (e) {
@@ -98,6 +10,136 @@ $(function () {
     $( "#connect1" ).click(function() { connectPlayer(1); });
     $( "#connect2" ).click(function() { connectPlayer(2); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
+    $( "#send" ).click(function() { sendMessage(); });
     $( "#sendToAll" ).click(function() { sendPublicName(); });
 });
+
+function connectPlayer(playernum) {
+    disconnectFromLobby();
+
+    var socket = new SockJS('/connections');
+    player = playernum;
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        // setConnected(true);
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/player/msg', function (message) {
+            console.log(message.body);
+            showMessage(JSON.parse(message.body));
+        });
+        stompClient.send("/app/player", {}, JSON.stringify({'xyz': -203, 'player': player}));
+    });
+
+
+
+    var requestOptions = {
+        method: 'POST',
+        redirect: 'follow'
+    };
+
+    fetch("usingPlayer/"+player, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+
+
+}
+
+function sendMessage() {
+    stompClient.send("/app/player", {}, JSON.stringify({'xyz': $("#message").val(), 'player': player}));
+}
+
+function showMessage(message) {
+
+    if (message.x < 0){
+        if (message.z == 3){
+            if (message.player == 1){
+                setConnected(false, null);
+            }
+            else {
+                setConnected(null, false);
+            }
+        }
+        else if(message.z == 2) {
+            if (message.player == 1){
+                setConnected(true, null);
+            }
+            else {
+                setConnected(null, true);
+            }
+        }
+
+        if (message.x == -2 && message.y == 0 && message.z == 0){
+            if (player != message.player){
+                dummyLoose()
+            }
+            else{
+                dummyWin()
+            }
+        }
+    }
+    else{
+        $("#messages").append("<tr><td>" + message.x + message.y + message.z + " player: "+ message.player +"</td></tr>");
+    }
+}
+
+function dummyWin(){
+    $("#messages").append("<tr><td>YOU SURVIVED!</td></tr>");
+}
+
+function dummyLoose(){
+    $("#messages").append("<tr><td>YOU ARE DEAD!</td></tr>");
+}
+
+function disconnect() {
+    stompClient.send("/app/player", {}, JSON.stringify({'xyz': -202, 'player': player}));
+    if (stompClient !== null) {
+        stompClient.disconnect();
+    }
+    if (player == 1){
+        setConnected(true, null);
+    }
+    else {
+        setConnected(null, true);
+    }
+    console.log("Disconnected");
+
+    $("#disconnect").prop("disabled", false);
+
+    var requestOptions = {
+        method: 'POST',
+        redirect: 'follow'
+    };
+
+    fetch("/releasePlayer/"+player, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+}
+
+function setConnected(player1, player2) {
+    $("#disconnect").prop("disabled", false);
+    $("#messages").html("");
+    if (player1 != null){
+        $("#connect1").prop("disabled", !player1);
+    }
+    if (player2 != null){
+        $("#connect2").prop("disabled", !player2);
+    }
+}
+
+function setLobbyConnected(player1, player2) {
+    $("#disconnect").prop("disabled", true);
+    $("#messages").html("");
+    if (player1 != null){
+        $("#connect1").prop("disabled", !player1);
+    }
+    if (player2 != null){
+        $("#connect2").prop("disabled", !player2);
+    }
+}
+function disconnectFromLobby() {
+    if (stompClient !== null) {
+        stompClient.disconnect();
+    }
+}

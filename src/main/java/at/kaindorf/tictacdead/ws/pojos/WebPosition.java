@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class WebPosition {
     public WebPosition(Message message) {
-        String tokens[] = message.getPlacement().split("");
+        String tokens[] = message.getXyz().split("");
 
         this.x = Integer.parseInt(tokens[0]);
         this.y = Integer.parseInt(tokens[1]);
@@ -19,4 +19,6 @@ public class WebPosition {
     private Integer x;
     private Integer y;
     private Integer z;
+
+    private Integer player;
 }

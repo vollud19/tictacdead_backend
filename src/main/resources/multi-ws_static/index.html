@@ -9,33 +9,7 @@
   <script src="/webjars/stomp-websocket/stomp.min.js"></script>
   <script src="/app.js"></script>
 </head>
-<script>
-  function getUsedPlayers(){
-    var socket = new SockJS('/connections');
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-      console.log('Connected: ' + frame);
-      stompClient.subscribe('/player/msg', function (message) {
-        console.log(message.body);
-        showMessage(JSON.parse(message.body));
-      });
-    });
-
-    var requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    };
-
-    fetch("/usedPlayers", requestOptions)
-            .then(response =>  {
-              return response.json();
-            })
-            .then(result => setLobbyConnected(result.player1, result.player2))
-            .catch(error => console.log('error', error));
-  }
-</script>
-
-<body onload="getUsedPlayers()">
+<body>
 <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
   enabled. Please enable
   Javascript and reload this page!</h2></noscript>
@@ -55,8 +29,8 @@
     <div class="col-md-6">
       <form class="form-inline">
         <div class="form-group">
-          <label for="message">Placement:</label>
-          <input type="text" id="message" class="form-control" placeholder="Your message here...">
+          <label for="name">Placement:</label>
+          <input type="text" id="name" class="form-control" placeholder="Your name here...">
         </div>
         <button id="send" class="btn btn-default" type="submit">Send</button>
         <button id="sendToAll" class="btn btn-default" type="submit">Send public</button>
@@ -71,7 +45,7 @@
           <th>Placements</th>
         </tr>
         </thead>
-        <tbody id="messages">
+        <tbody id="greetings">
         </tbody>
       </table>
     </div>
