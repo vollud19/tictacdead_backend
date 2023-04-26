@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TictacdeadApplication {
 
 	public static void main(String[] args) {
-		new BackendLogic();
+//		new BackendLogic();
 		SpringApplication.run(TictacdeadApplication.class, args);
 	}
 

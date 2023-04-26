@@ -68,8 +68,14 @@ function showMessage(message) {
                 setConnected(null, true);
             }
         }
-
-        if (message.x == -2 && message.y == 0 && message.z == 0){
+        if (message.x == -4 && message.y == 0 && message.z == 3 && message.player == player){
+            /* ToDo: Wrong Placement from this Player */
+            $("#messages").append("<tr><td>Wrong Placement!</td></tr>");
+        }
+        else if (message.x == -4 && message.y == 0 && message.z == 3 && message.player != player){
+            /* ToDo: Wrong Placement from other Player */
+        }
+        else if (message.x == -2 && message.y == 0 && message.z == 0){
             if (player != message.player){
                 dummyLoose()
             }
@@ -138,6 +144,8 @@ function setLobbyConnected(player1, player2) {
         $("#connect2").prop("disabled", !player2);
     }
 }
+
+
 function disconnectFromLobby() {
     if (stompClient !== null) {
         stompClient.disconnect();

@@ -2,8 +2,11 @@ package at.kaindorf.tictacdead.service;
 
 import at.kaindorf.tictacdead.pojos.Position;
 import at.kaindorf.tictacdead.pojos.State;
+import at.kaindorf.tictacdead.ws.pojos.LogicWebPosition;
 
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class BackendLogic {
 
@@ -18,6 +21,16 @@ public class BackendLogic {
 
     private Position[][][] board = new Position[4][4][4];
 
+    /*ToDo: remove this temporal draw detection*/
+    private Integer moves = 0;
+    private static BackendLogic backendLogic;
+
+    public static BackendLogic getTheInstance() {
+        if (backendLogic == null){
+        backendLogic = new BackendLogic();
+        }
+        return backendLogic;
+    }
 
     /**
      * Fills the board with Positions; Coordinates and States (Initialize board)
@@ -88,6 +101,9 @@ public class BackendLogic {
     }
 
 
+    private BackendLogic() {
+        fillBoardWithBlankPositions();
+    }
 
     public void launcher() {
 
@@ -152,6 +168,10 @@ public class BackendLogic {
         System.out.println(z);
 
         return layerWinCheck(x, y, z) || multiLayerWinCheck(x, y);
+    }
+
+    public boolean checkDraw() {
+        return (moves++ ==64) ? true : false;
     }
 
     private boolean multiLayerWinCheck(Integer x, Integer y) {
@@ -439,11 +459,38 @@ public class BackendLogic {
 
     }
 
+    public LogicWebPosition validate(Position position){
+
+        printBoard();
+//        Check if the move is valid
+        if (placePiece(position)){
+//            Convert X, Y, Z to one integer:
+            Integer move = position.getXCoordinate() *100 + position.getYCoordinate() *10 + position.getZCoordinate();
+            System.out.println(move);
+//            Check if the move leads to a win
+            if (checkWin(move)){
+                return new LogicWebPosition(-2,0,0,position.getFieldState().value);
+            }
+//            check if Winning is possible
+            else if(checkDraw()){
+                return new LogicWebPosition(-4,0,9,0);
+            }
+//            Simply place the piece
+            else{
+                return new LogicWebPosition(position.getXCoordinate(), position.getYCoordinate(),
+                        position.getZCoordinate(), position.getFieldState().value);
+            }
+        }
+//        Return invalid placement error Code
+        else{
+            return new LogicWebPosition(-4,0,3,position.getFieldState().value);
+        }
+
+
+    }
+
 
     public static void main(String[] args) {
-
-
-
         BackendLogic service = new BackendLogic();
         service.launcher();
 

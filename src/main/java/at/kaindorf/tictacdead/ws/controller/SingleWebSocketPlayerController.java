@@ -1,6 +1,7 @@
 package at.kaindorf.tictacdead.ws.controller;
 
 import at.kaindorf.tictacdead.pojos.Position;
+import at.kaindorf.tictacdead.service.BackendLogic;
 import at.kaindorf.tictacdead.ws.pojos.ConnectedPlayers;
 import at.kaindorf.tictacdead.ws.pojos.LogicWebPosition;
 import at.kaindorf.tictacdead.ws.pojos.Message;
@@ -29,9 +30,10 @@ public class SingleWebSocketPlayerController {
         Thread.sleep(1000); // simulated delay
         Position position = new Position(message);
         LogicWebPosition webPosition = new LogicWebPosition(message);
-        /*
-         ToDo: Otto Game Logic bla bla bla
-         */
+
+        if (!message.getXyz().equals("-203") && !message.getXyz().equals("-202")){
+             webPosition = BackendLogic.getTheInstance().validate(position);
+        }
         return webPosition;
     }
 
