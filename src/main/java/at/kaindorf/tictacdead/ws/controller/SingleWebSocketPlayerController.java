@@ -12,29 +12,46 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
+@CrossOrigin(origins = "*")
 public class SingleWebSocketPlayerController {
 
 //    stores which player is used already:
 //    true means that the player is free to use
     private ConnectedPlayers connectedPlayers = new ConnectedPlayers(true, true);
 
-    /* ToDo: Add number to Message to identify the Player (public Message) */
+    private Integer turn = 1;
+
+    /* ToDo: Move the turn conditions to the top (check before validate) */
     @MessageMapping("/player")
     @SendTo("/player/msg")
     public LogicWebPosition game(Message message) throws Exception {
-        Thread.sleep(1000); // simulated delay
+        System.out.println("Message: "+ message);
         Position position = new Position(message);
         LogicWebPosition webPosition = new LogicWebPosition(message);
 
-        if (!message.getXyz().equals("-203") && !message.getXyz().equals("-202")){
-             webPosition = BackendLogic.getTheInstance().validate(position);
+        if(message.getXyz().equals("-203") || message.getXyz().equals("-202")){
+
+            return webPosition;
         }
-        return webPosition;
+        else{
+            System.out.println("Validate:");
+            webPosition = BackendLogic.getTheInstance().validate(position);
+            return webPosition;
+        }
+        /*else if (turn%2 == 1 && message.getPlayer() == 1){
+            turn++;
+            return webPosition;
+        }
+        else if(turn%2 != 1 && message.getPlayer() == 2){
+            turn++;
+            return webPosition;
+        }*/
     }
 
     @PostMapping("/releasePlayer/{releasedPlayer}")
