@@ -3,6 +3,29 @@
     TICTACDEAD
  */
 
+/*~~~~~~~~~~~ Concept ~~~~~~~~~~~
+
+        Frontend -> Websocket -> Backend -> Websocket -> Frontend
+
+        # Frontend sends XYZ Message to Websocket
+        # Websocket Method calls Backend validate() Method
+        # If the validation fails, the Websocket returns a error code
+        # If the validation is a success the valid Position is returned to the subscribed Frontend
+        #
+
+        # Codes:
+
+        # -200 Win
+        # -404 Loose
+        # -409 Draw (if all fields are filled)
+        # -403 Wrong Placement
+
+        # XYZ Position if valid Placement
+
+        # -201 Player 1 already in use
+        # -202 Player 2 already in use
+*/
+
 package at.kaindorf.tictacdead.ws.controller;
 
 import at.kaindorf.tictacdead.pojos.Position;
@@ -33,6 +56,8 @@ public class SingleWebSocketPlayerController {
     private Integer turn = 1;
 
     /* ToDo: Move the turn conditions to the top (check before validate) */
+    // Here you get the current player who's on turn and return the coordinates of the player to the backend to validate the placement
+    // If the player is already in use (-202) then we return only the position
     @MessageMapping("/player")
     @SendTo("/player/msg")
     public LogicWebPosition game(Message message) throws Exception {
@@ -60,7 +85,8 @@ public class SingleWebSocketPlayerController {
 
     BackendLogic bl = BackendLogic.getTheInstance();
 
-    // Releases the Player, so that he can rejoin the game again
+    // Releases the Player, so that he can rejoin the game again, happens when we click on exit or restart
+    // We also set the gameboard to a blank and new one
     @PostMapping("/releasePlayer/{releasedPlayer}")
     ResponseEntity releasePlayer(@PathVariable Integer releasedPlayer) {
         if (releasedPlayer==1) {

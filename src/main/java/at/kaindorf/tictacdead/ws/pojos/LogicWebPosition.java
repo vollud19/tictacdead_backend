@@ -18,7 +18,7 @@ public class LogicWebPosition {
     private Integer z;
     private Integer player;
 
-    // See where the player placed the button, so the backend can validate
+    // See where the player placed the button, so the backend can validate the position
     public LogicWebPosition(Message message) {
         String tokens[] = message.getXyz().split("");
         if (tokens[0].equals("-")){

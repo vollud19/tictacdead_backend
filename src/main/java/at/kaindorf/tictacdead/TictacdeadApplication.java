@@ -1,5 +1,5 @@
 /*
-    Author: Otto Alwinger
+    Author: Otto Allwinger
     TICTACDEAD
  */
 

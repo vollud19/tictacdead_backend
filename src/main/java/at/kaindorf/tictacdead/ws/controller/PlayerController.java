@@ -1,5 +1,11 @@
+/*
+    Author: Franz Koinegg
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.ws.controller;
 
+// NOT USED ANYMORE
 //@Controller
 public class PlayerController {
 
