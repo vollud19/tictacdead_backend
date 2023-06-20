@@ -1,3 +1,8 @@
+/*
+    Author: Franz Koinegg
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.ws.controller;
 
 import at.kaindorf.tictacdead.pojos.Position;
@@ -35,29 +40,33 @@ public class SingleWebSocketPlayerController {
         Position position = new Position(message);
         LogicWebPosition webPosition = new LogicWebPosition(message);
 
-        if(message.getXyz().equals("-203") || message.getXyz().equals("-202")){
-
+        if (message.getXyz().equals("-203") || message.getXyz().equals("-202")){
             return webPosition;
         }
+        else if (turn%2 == 1){
+            turn++;
+            return webPosition;
+        }
+        /*else if(turn%2 != 1 && message.getPlayer() == 2){
+            turn++;
+            return webPosition;
+        }*/
         else{
             System.out.println("Validate:");
             webPosition = BackendLogic.getTheInstance().validate(position);
             return webPosition;
         }
-        /*else if (turn%2 == 1 && message.getPlayer() == 1){
-            turn++;
-            return webPosition;
-        }
-        else if(turn%2 != 1 && message.getPlayer() == 2){
-            turn++;
-            return webPosition;
-        }*/
     }
 
+    BackendLogic bl = BackendLogic.getTheInstance();
+
+    // Releases the Player, so that he can rejoin the game again
     @PostMapping("/releasePlayer/{releasedPlayer}")
     ResponseEntity releasePlayer(@PathVariable Integer releasedPlayer) {
-        if (releasedPlayer==1){
+        if (releasedPlayer==1) {
             connectedPlayers.setPlayer1(true);
+            bl.fillBoardWithBlankPositions();
+            bl.printBoard();
         }
         else{
             connectedPlayers.setPlayer2(true);
@@ -65,6 +74,7 @@ public class SingleWebSocketPlayerController {
         return new ResponseEntity<>("Player "+ releasedPlayer +" is now released!", HttpStatus.OK);
     }
 
+    // Send the currently Used player from the frontend to see which player is joined
     @PostMapping("/usingPlayer/{usedPlayer}")
     ResponseEntity usePlayer(@PathVariable Integer usedPlayer) {
         if (usedPlayer==1){
@@ -76,6 +86,7 @@ public class SingleWebSocketPlayerController {
         return new ResponseEntity<>("Player "+ usedPlayer +" is now in use!", HttpStatus.OK);
     }
 
+    // Get all used Players and return a response
     @GetMapping("/usedPlayers")
     ResponseEntity getUsedPlayer() {
         return new ResponseEntity<>(connectedPlayers, HttpStatus.OK);

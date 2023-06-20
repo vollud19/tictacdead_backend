@@ -1,3 +1,8 @@
+/*
+    Author: Franz Koinegg
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.ws.pojos;
 
 import lombok.AllArgsConstructor;

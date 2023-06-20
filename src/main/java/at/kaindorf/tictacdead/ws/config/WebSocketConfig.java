@@ -1,3 +1,8 @@
+/*
+    Author: Franz Koinegg
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.ws.config;
 
 import lombok.Setter;
@@ -8,6 +13,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+// Configuration Class for the websocket
 @Setter
 @Configuration
 @EnableWebSocketMessageBroker
@@ -21,6 +27,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
 //    USE the  IP-Address of the React Server
+    // Allow these Ips / Endpoints
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/connections").setAllowedOrigins("http://192.168.82.182:3000/","http://localhost:3000/").withSockJS();

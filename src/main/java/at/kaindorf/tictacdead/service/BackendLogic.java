@@ -1,3 +1,8 @@
+/*
+    Author: Otto Alwinger
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.service;
 
 import at.kaindorf.tictacdead.pojos.Position;

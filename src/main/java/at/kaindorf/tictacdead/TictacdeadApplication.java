@@ -1,3 +1,8 @@
+/*
+    Author: Otto Alwinger
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead;
 
 import at.kaindorf.tictacdead.service.BackendLogic;

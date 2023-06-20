@@ -1,9 +1,15 @@
+/*
+    Author: Franz Koinegg
+    TICTACDEAD
+ */
+
 package at.kaindorf.tictacdead.ws.pojos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// See where the player placed the button, so the backend can validate (NOT USED ANYMORE)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
