@@ -26,47 +26,12 @@ public class BackendLogic {
 
     private Position[][][] board = new Position[4][4][4];
 
-    /*ToDo: remove this temporal draw detection
-     *  Todo: do undo*/
+    /*ToDo: remove this temporal draw detection*/
     private Integer moves = 0;
     private static BackendLogic backendLogic;
 
-    private Position oldPosition;
-    private Random randomNumber;
-
-    public LogicWebPosition validate(Position position) {
-
-        printBoard();
-//        Check if the move is valid
-        if (placePiece(position)) {
-//            Convert X, Y, Z to one integer:
-            Integer move = position.getXCoordinate() * 100 + position.getYCoordinate() * 10 + position.getZCoordinate();
-            System.out.println(move);
-//            Check if the move leads to a win
-            if (checkWinBoolean(checkWin(move))) {
-                return new LogicWebPosition(-2, 0, 0, position.getFieldState().value);
-            }
-//            check if Winning is possible
-            else if (checkDraw()) {
-                return new LogicWebPosition(-4, 0, 9, 0);
-            }
-//            Simply place the piece
-            else {
-                return new LogicWebPosition(position.getXCoordinate(), position.getYCoordinate(),
-                        position.getZCoordinate(), position.getFieldState().value);
-            }
-        }
-//        Return invalid placement error Code
-        else {
-            return new LogicWebPosition(-4, 0, 3, position.getFieldState().value);
-        }
-
-
-    }
-
-
     public static BackendLogic getTheInstance() {
-        if (backendLogic == null) {
+        if (backendLogic == null){
             backendLogic = new BackendLogic();
         }
         return backendLogic;
@@ -112,99 +77,6 @@ public class BackendLogic {
         System.out.println(boardStateString);
     }
 
-    public void launcher() {
-
-        State state;
-        Scanner scanner = new Scanner(System.in);
-        Integer coordinates = null;
-        String tmp;
-        Integer isPlayingAgainstAi = 0;
-
-
-        // Initialize board with printout
-        fillBoardWithBlankPositions();  /*ToDo: add to Constructor*/
-        printBoard();
-
-        System.out.println("Do you want to play against ai? Enter 0 or 1: ");
-        isPlayingAgainstAi = scanner.nextInt();
-        if (isPlayingAgainstAi == 0) {
-
-            // Goes through as many times as the game has fields
-            // In the for loop each player can place their pieces and after each placement a win check occurs
-            // After for the game is automatically a draw
-            for (int cnt = 1; cnt <= (4 * 4 * 4); cnt++) {
-
-                if (cnt % 2 == 0) {
-                    state = State.YELLOW;
-                    System.out.println(ANSI_YELLOW + "Yellows Turn" + ANSI_RESET);
-                } else {
-                    state = State.RED;
-                    System.out.println(ANSI_RED + "Reds Turn" + ANSI_RESET);
-                }
-
-                do {
-                    System.out.println(PURPLE + "Enter coordinates in format XYZ: " + ANSI_RESET);
-                    tmp = scanner.next();
-                    coordinates = Integer.parseInt(tmp);
-                }
-                while (
-                        (tmp.length() != 3) || !placePiece(new Position(
-                                        coordinates / 100,
-                                        (coordinates / 10) % 10,
-                                        coordinates % 10, state
-                                )
-                        )
-                );
-
-                if (checkWinBoolean(checkWin(coordinates))) {
-                    System.out.println(GREEN_BOLD + GREEN_UNDERLINED + state + " won" + ANSI_RESET);
-                    return;
-                }
-            }
-            System.out.println("The game ended in a draw");
-        } else {
-            System.out.println("Choose the difficulty between 1 - 3: ");
-            Integer difficulty = scanner.nextInt();
-            Position tmpPos;
-
-            for (int cnt = 1; cnt <= (4 * 4 * 4); cnt++) {
-                if (cnt % 2 == 0) {
-                    state = State.YELLOW;
-                    System.out.println(ANSI_YELLOW + "Yellows Turn" + ANSI_RESET);
-
-
-                    do {
-                        System.out.println(PURPLE + "Enter coordinates in format XYZ: " + ANSI_RESET);
-                        tmp = scanner.next();
-                        coordinates = Integer.parseInt(tmp);
-                        oldPosition = new Position(
-                                coordinates / 100,
-                                (coordinates / 10) % 10,
-                                coordinates % 10, state
-                        );
-                    }
-                    while ((tmp.length() != 3) || !placePiece(oldPosition));
-
-                    if (checkWinBoolean(checkWin(coordinates))) {
-                        System.out.println(GREEN_BOLD + GREEN_UNDERLINED + state + " won" + ANSI_RESET);
-                        return;
-                    }
-                } else {
-                    do {
-                        tmpPos = placeRandomPositionInField(oldPosition, difficulty);
-                        tmpPos.setFieldState(State.RED);
-                    }
-                    while (!placePiece(tmpPos));
-
-                    if (checkWinBoolean(checkWin(tmpPos.getXCoordinate(), tmpPos.getYCoordinate(), tmpPos.getZCoordinate()))) {
-                        System.out.println(GREEN_BOLD + GREEN_UNDERLINED + "Red won" + ANSI_RESET);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * Places the piece onto the board
      * Additionally it checks if the field is empty
@@ -218,7 +90,7 @@ public class BackendLogic {
         Integer y = piece.getYCoordinate();
         Integer z = piece.getZCoordinate();
 
-        if ((x < 0 || x > 3) || (y < 0 || y > 3) || (z < 0 || z > 3)) {
+        if ((x < 0 || x > 3) || (y < 0 || y > 3)  || (z < 0 || z > 3)) {
             return false;
         }
 
@@ -234,160 +106,55 @@ public class BackendLogic {
     }
 
 
-
-
-
-    // Red is here always ai
-
-//    private boolean isMoveLeft(){
-//        for (int x = 0; x < 4; x++){
-//            for (int y = 0; y < 4; y++){
-//                for (int z = 0; z < 4; z++){
-//                    if (board[x][y][z].getFieldState().equals(State.BLANK)){
-//                       return true;
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//    }
-//    private Position bestMove() {
-//        Integer bestScore = Integer.MIN_VALUE;
-//        Integer score;
-//        Position move = null;
-//
-//        for (int x = 0; x < 4; x++){
-//            for (int y = 0; y < 4; y++){
-//                for (int z = 0; z < 4; z++){
-//                    if (board[x][y][z].getFieldState().equals(State.BLANK)){
-//                        board[x][y][z].setFieldState(State.RED);
-//                        score = minimax(board, 0, false); // Des koennte der Fehler sein
-//                        board[x][y][z].setFieldState(State.BLANK);
-//                        if (score > bestScore){
-//                            bestScore = score;
-//                            move = new Position(x,y,z, State.RED);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return move;
-//    }
-
-    // TODO
-    //  Check win logik ueberarbeiten damit nicht nur boolean zurueckgegeben wird
-    //  So ueberarbeiten dass, nich mehr boolean sondern state zurueckgegeben wird
-
-//    private Integer getScore(State state){
-//        if (state.equals(State.RED)) return 1;
-//        else return -1;
-//    }
-
-
-    // Todo review this code and correct it
-//    private Integer minimax(Position[][][] board, Integer depth, Boolean isMaximizing) {
-//        Integer score = 0;
-//        State state = State.BLANK;
-//
-//        for (int x = 0; x < 4; x++){
-//            for (int y = 0; y < 4; y++){
-//                for (int z = 0; z < 4; z++){
-//                    state = checkWin(x, y, z);
-//                    if (!state.equals(State.BLANK)){
-//                        return score  = getScore(state);
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (state.equals(State.BLANK)) return 0;
-//
-//        if (isMoveLeft() == false) return 0;
-//
-//        if (isMaximizing)
-//        {
-//            int best = Integer.MIN_VALUE;
-//
-//            // Traverse all cells
-//            for (int x = 0; x < 4; x++){
-//                for (int y = 0; y < 4; y++){
-//                    for (int z = 0; z < 4; z++){
-//                        if (board[x][y][z].equals(State.BLANK))
-//                        {
-//                            // Make the move
-//                            board[x][y][z].setFieldState(State.RED);
-//                            best = Math.max(best ,minimax(board, depth + 1, !isMaximizing)); // Des koennte der Fehler sein
-//                            board[x][y][z].setFieldState(State.BLANK);
-//                        }
-//                    }
-//                }
-//            }
-//            return best;
-//        }else {
-//            int best = Integer.MAX_VALUE;
-//
-//            // Traverse all cells
-//            for (int x = 0; x < 4; x++){
-//                for (int y = 0; y < 4; y++){
-//                    for (int z = 0; z < 4; z++){
-//                        if (board[x][y][z].equals(State.BLANK))
-//                        {
-//                            // Make the move
-//                            board[x][y][z].setFieldState(State.YELLOW);
-//                            best = Math.min(best ,minimax(board, depth + 1, !isMaximizing)); // Des koennte der Fehler sein
-//                            board[x][y][z].setFieldState(State.BLANK);
-//                        }
-//                    }
-//                }
-//            }
-//            return best;
-//        }
-//
-//    }
-
-    //////////////////////////////
-
     private BackendLogic() {
         fillBoardWithBlankPositions();
     }
 
-    public Position placeRandomPositionInField(Position oldPosition, Integer option) {
+    public void launcher() {
 
-        switch (option) {
-            case 1:
-                return getTotallyRandomPosition(oldPosition);
-            case 2:
-                return getRandomPositionWithin2(oldPosition);
-//            case 3:
-//                return null;
+        State state;
+        Scanner scanner = new Scanner(System.in);
+        Integer coordinates;
+        String tmp;
 
-            default:
-                throw new RuntimeException();
+
+        // Initialize board with printout
+        fillBoardWithBlankPositions();  /*ToDo: add to Constructor*/
+        printBoard();
+
+        // Goes through as many times as the game has fields
+        // In the for loop each player can place their pieces and after each placement a win check occurs
+        // After for the game is automatically a draw
+        for (int cnt = 1; cnt <= (4 * 4 * 4); cnt++) {
+            if (cnt % 2 == 0) {
+                state = State.YELLOW;
+                System.out.println(ANSI_YELLOW + "Yellows Turn" + ANSI_RESET);
+            } else {
+                state = State.RED;
+                System.out.println(ANSI_RED + "Reds Turn" + ANSI_RESET);
+            }
+
+            do {
+                System.out.println(PURPLE + "Enter coordinates in format XYZ: " + ANSI_RESET);
+                tmp = scanner.next();
+                coordinates = Integer.parseInt(tmp);
+            }
+            while (
+                    (tmp.length() != 3) || !placePiece(new Position(
+                                    coordinates / 100,
+                                    (coordinates / 10) % 10,
+                                    coordinates % 10, state
+                            )
+                    )
+            );
+
+            if (checkWin(coordinates)) {
+                System.out.println(GREEN_BOLD + GREEN_UNDERLINED + state + " won" + ANSI_RESET);
+                return;
+            }
         }
-
+        System.out.println("The game ended in a draw");
     }
-
-    private Position getTotallyRandomPosition(Position oldPosition) {
-        randomNumber = new Random();
-        return new Position(randomNumber.nextInt(3), randomNumber.nextInt(3), randomNumber.nextInt(3),
-                oldPosition.getFieldState() == State.YELLOW ? State.RED : State.YELLOW);
-    }
-
-    private Position getRandomPositionWithin2(Position oldPosition) {
-        randomNumber = new Random();
-
-        return new Position(oldPosition.getXCoordinate() + randomNumber.nextInt(-2, 2),
-                oldPosition.getYCoordinate() + randomNumber.nextInt(-2, 2),
-                oldPosition.getZCoordinate() + randomNumber.nextInt(-2, 2),
-                oldPosition.getFieldState() == State.YELLOW ? State.RED : State.YELLOW);
-
-    }
-
-    public boolean checkWinBoolean(State state) {
-        if (!state.equals(State.BLANK)) return true;
-        return false;
-    }
-
 
     /**
      * Method that determines after a placement if the affected rows fulfill the win condition
@@ -396,7 +163,7 @@ public class BackendLogic {
      * @param coordinates
      * @return boolean to check if there is a winner
      */
-    public State checkWin(Integer coordinates) {
+    public boolean checkWin(Integer coordinates) {
         Integer x = coordinates / 100;
         Integer y = (coordinates / 10) % 10;
         Integer z = coordinates % 10;
@@ -405,65 +172,18 @@ public class BackendLogic {
         System.out.println(y);
         System.out.println(z);
 
-        State state = State.BLANK;
-
-        state = layerWinCheck(x, y, z);
-        if (!state.equals(State.BLANK)) return state;
-        state = multiLayerWinCheck(x, y);
-
-        return state;
-    }
-
-    public State checkWin(Integer x, Integer y, Integer z) {
-
-//        System.out.println(x);
-//        System.out.println(y);
-//        System.out.println(z);
-
-
-        State state = State.BLANK;
-
-        state = layerWinCheck(x, y, z);
-        if (!state.equals(State.BLANK)) return state;
-        state = multiLayerWinCheck(x, y);
-
-        return state;
+        return layerWinCheck(x, y, z) || multiLayerWinCheck(x, y);
     }
 
     public boolean checkDraw() {
-        return (moves++ == 64) ? true : false;
+        return (moves++ ==64) ? true : false;
     }
 
-
-    private State layerWinCheck(Integer x, Integer y, Integer z) {
-        State state = State.BLANK;
-
-        state = checkXAxisOnY(y, z);
-        if (!state.equals(State.BLANK)) return state;
-        state = checkYAxisOnX(x, z);
-        if (!state.equals(State.BLANK)) return state;
-        state = checkXYDiagonal(x, y, z);
-        ;
-
-        return state;
+    private boolean multiLayerWinCheck(Integer x, Integer y) {
+        return checkZAxisOnXY(x, y) || checkZYDiagonalOnX(x) || checkZXDiagonalOnY(y) || checkZDiagonalWithXY(x, y);
     }
 
-
-    private State multiLayerWinCheck(Integer x, Integer y) {
-        State state = State.BLANK;
-
-        state = checkZAxisOnXY(x, y);
-        if (!state.equals(State.BLANK)) return state;
-        state = checkZYDiagonalOnX(x);
-        if (!state.equals(State.BLANK)) return state;
-        state = checkZXDiagonalOnY(y);
-        if (!state.equals(State.BLANK)) return state;
-        state = checkZDiagonalWithXY(x, y);
-
-        return state;
-    }
-
-    private State checkZDiagonalWithXY(Integer x, Integer y) {
+    private boolean checkZDiagonalWithXY(Integer x, Integer y) {
 
         boolean hasToBeReversed;
 
@@ -483,7 +203,8 @@ public class BackendLogic {
                         || (x == 2 && y == 1)
         ) {
             hasToBeReversed = true;
-        } else return State.BLANK;
+        } else return false;
+
 
 
         StringBuilder checkWin = new StringBuilder();
@@ -524,7 +245,7 @@ public class BackendLogic {
             }
         }
 
-        return getStateFromString(String.valueOf(checkWin));
+        return checkWin.toString().equals("RRRR") || checkWin.toString().equals("YYYY");
     }
 
     /**
@@ -538,7 +259,7 @@ public class BackendLogic {
      * @param y
      * @return boolean that checks if there are four of the same kind on the Axis ZX in Position Y
      */
-    private State checkZXDiagonalOnY(Integer y) {
+    private boolean checkZXDiagonalOnY(Integer y) {
         StringBuilder checkWin = new StringBuilder();
         int z1 = 0;
 
@@ -547,9 +268,9 @@ public class BackendLogic {
             checkWin.append(board[x1][y][z1++].getFirstLetterOfState());
         }
 
-        if (checkWin.toString().equals("RRRR")) return State.RED;
-        else if (checkWin.toString().equals("YYYY")) return State.YELLOW;
-        else {
+        if (checkWin.toString().equals("RRRR") || checkWin.toString().equals("YYYY")) {
+            return true;
+        } else {
             checkWin = new StringBuilder();
             z1 = 0;
 
@@ -557,13 +278,7 @@ public class BackendLogic {
                 checkWin.append(board[x1][y][z1++].getFirstLetterOfState());
             }
         }
-        return getStateFromString(String.valueOf(checkWin));
-    }
-
-    private State getStateFromString(String checkWin) {
-        if (checkWin.toString().equals("RRRR")) return State.RED;
-        else if (checkWin.toString().equals("YYYY")) return State.YELLOW;
-        else return State.BLANK;
+        return checkWin.toString().equals("RRRR") || checkWin.toString().equals("YYYY");
     }
 
     /**
@@ -582,7 +297,7 @@ public class BackendLogic {
      * @param x
      * @return boolean that checks if there are four of the same kind on the Axis ZX in Position Y
      */
-    private State checkZYDiagonalOnX(Integer x) {
+    private boolean checkZYDiagonalOnX(Integer x) {
         StringBuilder checkWin = new StringBuilder();
         int z1 = 0;
 
@@ -591,9 +306,9 @@ public class BackendLogic {
             checkWin.append(board[x][y1][z1++].getFirstLetterOfState());
         }
 
-        if (checkWin.toString().equals("RRRR")) return State.RED;
-        else if (checkWin.toString().equals("YYYY")) return State.YELLOW;
-        else {
+        if (checkWin.toString().equals("RRRR") || checkWin.toString().equals("YYYY")) {
+            return true;
+        } else {
             checkWin = new StringBuilder();
             z1 = 0;
 
@@ -601,7 +316,7 @@ public class BackendLogic {
                 checkWin.append(board[x][y1][z1++].getFirstLetterOfState());
             }
         }
-        return getStateFromString(String.valueOf(checkWin));
+        return checkWin.toString().equals("RRRR") || checkWin.toString().equals("YYYY");
     }
 
     /**
@@ -614,7 +329,7 @@ public class BackendLogic {
      * @param y
      * @return boolean that checks if there are four of the same kind on the Axis Z in Position XY
      */
-    private State checkZAxisOnXY(Integer x, Integer y) {
+    private boolean checkZAxisOnXY(Integer x, Integer y) {
         String checkPieces = "";
 
         //Check VerticalDepth on Position xy
@@ -622,9 +337,12 @@ public class BackendLogic {
             checkPieces += board[x][y][z].getFirstLetterOfState();
         }
 
-        return getStateFromString(checkPieces);
+        return checkPieces.equals("RRRR") || checkPieces.equals("YYYY");
     }
 
+    private boolean layerWinCheck(Integer x, Integer y, Integer z) {
+        return checkXAxisOnY(y, z) || checkYAxisOnX(x, z) || checkXYDiagonal(x, y, z);
+    }
 
     /**
      * Checks if win condition is fulfilled(marked with *)
@@ -643,7 +361,7 @@ public class BackendLogic {
      * @param z
      * @return boolean that checks if there are four of the same kind on the Axis Y in Position X
      */
-    private State checkYAxisOnX(Integer x, Integer z) {
+    private boolean checkYAxisOnX(Integer x, Integer z) {
         String checkPieces = "";
 
         //Check Vertical on Position x
@@ -651,7 +369,7 @@ public class BackendLogic {
             checkPieces += board[x][y][z].getFirstLetterOfState();
         }
 
-        return getStateFromString(checkPieces);
+        return checkPieces.equals("RRRR") || checkPieces.equals("YYYY");
     }
 
 
@@ -672,7 +390,7 @@ public class BackendLogic {
      * @param z
      * @return boolean that checks if there are four of the same kind on the Axis X in Position Y
      */
-    private State checkXAxisOnY(Integer y, Integer z) {
+    private boolean checkXAxisOnY(Integer y, Integer z) {
         String checkPieces = "";
 
         //Check Vertical on Position x
@@ -680,7 +398,7 @@ public class BackendLogic {
             checkPieces += board[x][y][z].getFirstLetterOfState();
         }
 
-        return getStateFromString(checkPieces);
+        return checkPieces.equals("RRRR") || checkPieces.equals("YYYY");
     }
 
 
@@ -702,7 +420,7 @@ public class BackendLogic {
      * @param z
      * @return boolean that checks if the win condition is fulfilled on a diagonal
      */
-    private State checkXYDiagonal(Integer x, Integer y, Integer z) {
+    private boolean checkXYDiagonal(Integer x, Integer y, Integer z) {
         boolean hasToBeReversed;
 
         // This argument checks if Position is at the corners (x == 0 || x == 3 && y == 0 || y == 3)
@@ -721,7 +439,7 @@ public class BackendLogic {
                         || (x == 2 && y == 1)
         ) {
             hasToBeReversed = true;
-        } else return State.BLANK;
+        } else return false;
 
 
         String checkWin = "";
@@ -740,7 +458,39 @@ public class BackendLogic {
         }
 
 
-        return getStateFromString(checkWin);
+
+
+        return checkWin.equals("RRRR") || checkWin.equals("YYYY");
+
+    }
+
+    public LogicWebPosition validate(Position position){
+
+        printBoard();
+//        Check if the move is valid
+        if (placePiece(position)){
+//            Convert X, Y, Z to one integer:
+            Integer move = position.getXCoordinate() *100 + position.getYCoordinate() *10 + position.getZCoordinate();
+            System.out.println(move);
+//            Check if the move leads to a win
+            if (checkWin(move)){
+                return new LogicWebPosition(-2,0,0,position.getFieldState().value);
+            }
+//            check if Winning is possible
+            else if(checkDraw()){
+                return new LogicWebPosition(-4,0,9,0);
+            }
+//            Simply place the piece
+            else{
+                return new LogicWebPosition(position.getXCoordinate(), position.getYCoordinate(),
+                        position.getZCoordinate(), position.getFieldState().value);
+            }
+        }
+//        Return invalid placement error Code
+        else{
+            return new LogicWebPosition(-4,0,3,position.getFieldState().value);
+        }
+
 
     }
 
