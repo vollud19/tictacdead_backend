@@ -20,6 +20,7 @@ public class Position {
     private Integer zCoordinate;
     private State fieldState;
 
+
     public Position(Message message) {
         String tokens[] = message.getXyz().split("");
         if (tokens[0].equals("-")){
@@ -45,8 +46,10 @@ public class Position {
         return String.format("%d%d%d", this.xCoordinate, this.yCoordinate, this.zCoordinate);
     }
 
+
     public String getFirstLetterOfState(){
         return fieldState.toString().substring(0, 1);
     }
+
 
 }
