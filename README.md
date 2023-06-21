@@ -18,7 +18,7 @@ Open http://localhost:3000 with your browser to see the result.
 (You maybe need to execute ```next build``` before npm run start)
 
 NEXT: Start Websocket
-Go into the backend and start the ```WebsocketApplication.java```
+Go into the backend and start the ```TicTacDeadApplication.java```
 
 Then you have to start the backend as well!
 
