@@ -13,7 +13,7 @@ Only if problems occur
 If the players on playerselect are blacked out, then head into postman and make a POST Request http://localhost:8080/releasePlayer/3
 
 
-# Frontend
+# Only for Frontend
 Start the App (Frontend)
 Run ```npm install``` to install all the necessarry packages
 
